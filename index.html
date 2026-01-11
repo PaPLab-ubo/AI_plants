@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Biljke - Aplikacija za uzgoj biljaka</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --primary-dark: #1b5e20;
+            --secondary: #ff9800;
+            --light: #f1f8e9;
+            --dark: #1a1a1a;
+            --gray: #757575;
+            --light-gray: #f5f5f5;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 1.5rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .lang-btn:hover, .lang-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Navigation */
+        nav {
+            background-color: var(--primary-dark);
+            padding: 1rem 0;
+        }
+
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            gap: 2px;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.3s;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .nav-tab:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-tab.active {
+            background-color: var(--light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        /* Main content */
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 180px);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        h3 {
+            color: var(--primary-dark);
+            margin: 1.5rem 0 1rem;
+        }
+
+        /* Plant identification */
+        .plant-identification {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .plant-identification {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-method {
+            margin-bottom: 1.5rem;
+        }
+
+        .method-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .method-btn {
+            padding: 10px 20px;
+            background-color: var(--light-gray);
+            border: 2px solid var(--light-gray);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .method-btn.active {
+            background-color: var(--primary-light);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .camera-container {
+            width: 100%;
+            height: 300px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .camera-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .camera-btn {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .plant-info {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .plant-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .plant-details {
+            flex-grow: 1;
+        }
+
+        /* Growing conditions */
+        .conditions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .condition-card {
+            background-color: var(--light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .condition-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Calendar */
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .month-btn {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        #current-month {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .calendar-day {
+            background-color: var(--white);
+            padding: 15px 10px;
+            min-height: 120px;
+            position: relative;
+        }
+
+        .calendar-day-header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .day-number {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+        }
+
+        .planting-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .planting-item {
+            background-color: #e8f5e9;
+            padding: 5px;
+            border-radius: 3px;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .add-note-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Notes modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 5px;
+            margin-top: 1rem;
+            resize: vertical;
+            min-height: 150px;
+            font-family: inherit;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+
+        /* Export */
+        .export-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            padding: 12px 24px;
+            background-color: var(--secondary);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .export-btn:hover {
+            background-color: #e68900;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                font-size: 0.8rem;
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+                padding: 10px 5px;
+            }
+            
+            .day-number {
+                font-size: 0.9rem;
+            }
+            
+            .planting-item {
+                font-size: 0.7rem;
+                padding: 3px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-tabs {
+                font-size: 0.9rem;
+            }
+            
+            .nav-tab {
+                padding: 10px 15px;
+            }
+            
+            .conditions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+                <span data-lang="bs">AI Biljke</span>
+                <span data-lang="en" style="display: none;">AI Plants</span>
+            </div>
+            <div class="language-switcher">
+                <button class="lang-btn active" data-lang="bs">BS</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-tabs">
+                <li class="nav-tab active" data-tab="identify">
+                    <span data-lang="bs">Identifikacija biljaka</span>
+                    <span data-lang="en" style="display: none;">Plant Identification</span>
+                </li>
+                <li class="nav-tab" data-tab="conditions">
+                    <span data-lang="bs">Uslovi uzgoja</span>
+                    <span data-lang="en" style="display: none;">Growing Conditions</span>
+                </li>
+                <li class="nav-tab" data-tab="calendar">
+                    <span data-lang="bs">Kalendar sadnje</span>
+                    <span data-lang="en" style="display: none;">Planting Calendar</span>
+                </li>
+                <li class="nav-tab" data-tab="export">
+                    <span data-lang="bs">Izvoz podataka</span>
+                    <span data-lang="en" style="display: none;">Export Data</span>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="container">
+        <!-- Plant Identification Tab -->
+        <section id="identify" class="tab-content active">
+            <div class="card">
+                <h2 data-lang="bs">Identifikacija biljaka</h2>
+                <p data-lang="bs" class="description">Fotografišite biljku ili unesite njen naziv za dobijanje informacija o njoj.</p>
+                <p data-lang="en" class="description" style="display: none;">Photograph a plant or enter its name to get information about it.</p>
+                
+                <div class="plant-identification">
+                    <div>
+                        <div class="input-method">
+                            <h3 data-lang="bs">Odaberite način identifikacije:</h3>
+                            <h3 data-lang="en" style="display: none;">Select identification method:</h3>
+                            <div class="method-selector">
+                                <button class="method-btn active" data-method="camera">
+                                    <i class="fas fa-camera"></i>
+                                    <span data-lang="bs">Kamera</span>
+                                    <span data-lang="en" style="display: none;">Camera</span>
+                                </button>
+                                <button class="method-btn" data-method="text">
+                                    <i class="fas fa-keyboard"></i>
+                                    <span data-lang="bs">Tekstualni unos</span>
+                                    <span data-lang="en" style="display: none;">Text input</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="camera-container" id="camera-container">
+                            <i class="fas fa-camera fa-3x" style="color: #ccc;"></i>
+                            <p data-lang="bs">Kamera nije aktivna</p>
+                            <p data-lang="en" style="display: none;">Camera is not active</p>
+                            <video id="camera" autoplay></video>
+                            <canvas id="camera-canvas"></canvas>
+                        </div>
+                        
+                        <div id="text-input-container" style="display: none;">
+                            <input type="text" class="text-input" id="plant-name-input" 
+                                placeholder="Unesite naziv biljke (npr. ruža, bosiljak, paradajz)" 
+                                data-lang-bs="Unesite naziv biljke (npr. ruža, bosiljak, paradajz)"
+                                data-lang-en="Enter plant name (e.g. rose, basil, tomato)">
+                            <button class="camera-btn" id="identify-from-text">
+                                <i class="fas fa-search"></i>
+                                <span data-lang="bs">Identifikuj biljku</span>
+                                <span data-lang="en" style="display: none;">Identify plant</span>
+                            </button>
+                        </div>
+                        
+                        <div class="camera-controls">
+                            <button class="camera-btn" id="start-camera">
+                                <i class="fas fa-play"></i>
+                                <span data-lang="bs">Pokreni kameru</span>
+                                <span data-lang="en" style="display: none;">Start camera</span>
+                            </button>
+                            <button class="camera-btn" id="capture-photo" style="display: none;">
+                                <i class="fas fa-camera"></i>
+                                <span data-lang="bs">Fotografiši biljku</span>
+                                <span data-lang="en" style="display: none;">Take photo</span>
+                            </button>
+                            <button class="camera-btn" id="stop-camera" style="display: none;">
+                                <i class="fas fa-stop"></i>
+                                <span data-lang="bs">Zaustavi kameru</span>
+                                <span data-lang="en" style="display: none;">Stop camera</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 data-lang="bs">Identifikovana biljka:</h3>
+                        <h3 data-lang="en" style="display: none;">Identified plant:</h3>
+                        
+                        <div id="plant-result">
+                            <div class="plant-info" style="display: none;" id="plant-info">
+                                <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                                     alt="Plant" class="plant-image" id="plant-image">
+                                <div class="plant-details">
+                                    <h4 id="plant-title">Ruža</h4>
+                                    <p id="plant-description">
+                                        <span data-lang="bs">Ruža je cvijet iz porodice Rosaceae. Postoji preko 300 vrsta i hiljada sorti. Cvjeta u raznim bojama, najčešće u crvenoj, rozoj, bijeloj i žutoj.</span>
+                                        <span data-lang="en" style="display: none;">Rose is a flower from the Rosaceae family. There are over 300 species and thousands of cultivars. It blooms in various colors, most commonly in red, pink, white and yellow.</span>
+                                    </p>
+                                    <div id="plant-details"></div>
+                                </div>
+                            </div>
+                            <p id="no-plant" data-lang="bs">Još niste identifikovali biljku. Koristite kameru ili tekstualni unos da biste identifikovali biljku.</p>
+                            <p id="no-plant-en" data-lang="en" style="display: none;">You haven't identified a plant yet. Use the camera or text input to identify a plant.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Growing Conditions Tab -->
+        <section id="conditions" class="tab-content">
+            <div class="card">
+                <h2 data-lang="bs">Uslovi uzgoja</h2>
+                <p data-lang="bs" class="description">Detaljni uslovi uzgoja za identifikovanu biljku.</p>
+                <p data-lang="en" class="description" style="display: none;">Detailed growing conditions for the identified plant.</p>
+                
+                <div id="conditions-content">
+                    <div class="plant-info">
+                        <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                             alt="Plant" class="plant-image" id="conditions-plant-image">
+                        <div class="plant-details">
+                            <h4 id="conditions-plant-title">Ruža</h4>
+                            <p id="conditions-plant-description">
+                                <span data-lang="bs">Ruža je cvijet iz porodice Rosaceae. Postoji preko 300 vrsta i hiljada sorti. Cvjeta u raznim bojama, najčešće u crvenoj, rozoj, bijeloj i žutoj.</span>
+                                <span data-lang="en" style="display: none;">Rose is a flower from the Rosaceae family. There are over 300 species and thousands of cultivars. It blooms in various colors, most commonly in red, pink, white and yellow.</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <h3 data-lang="bs">Optimalni uslovi uzgoja</h3>
+                    <h3 data-lang="en" style="display: none;">Optimal growing conditions</h3>
+                    
+                    <div class="conditions-grid">
+                        <div class="condition-card">
+                            <i class="fas fa-sun"></i>
+                            <h4 data-lang="bs">Svjetlost</h4>
+                            <h4 data-lang="en" style="display: none;">Light</h4>
+                            <p id="light-condition" data-lang="bs">Potrebno puno sunca, najmanje 6 sati dnevno.</p>
+                            <p id="light-condition-en" data-lang="en" style="display: none;">Needs plenty of sunlight, at least 6 hours daily.</p>
+                        </div>
+                        <div class="condition-card">
+                            <i class="fas fa-thermometer-half"></i>
+                            <h4 data-lang="bs">Temperatura</h4>
+                            <h4 data-lang="en" style="display: none;">Temperature</h4>
+                            <p id="temp-condition" data-lang="bs">Optimalna temperatura je 15-25°C. Može podnijeti i niže temperature.</p>
+                            <p id="temp-condition-en" data-lang="en" style="display: none;">Optimal temperature is 15-25°C. Can tolerate lower temperatures.</p>
+                        </div>
+                        <div class="condition-card">
+                            <i class="fas fa-tint"></i>
+                            <h4 data-lang="bs">Zalijevanje</h4>
+                            <h4 data-lang="en" style="display: none;">Watering</h4>
+                            <p id="water-condition" data-lang="bs">Zalijevati redovno, ali izbjegavati prekomjerno zalijevanje. Tlo treba biti vlažno, ali ne mokro.</p>
+                            <p id="water-condition-en" data-lang="en" style="display: none;">Water regularly, but avoid overwatering. Soil should be moist but not wet.</p>
+                        </div>
+                        <div class="condition-card">
+                            <i class="fas fa-seedling"></i>
+                            <h4 data-lang="bs">Tip tla</h4>
+                            <h4 data-lang="en" style="display: none;">Soil type</h4>
+                            <p id="soil-condition" data-lang="bs">Plodno, dobro drenirano tlo sa pH vrijednošću između 6.0 i 6.5.</p>
+                            <p id="soil-condition-en" data-lang="en" style="display: none;">Fertile, well-drained soil with pH between 6.0 and 6.5.</p>
+                        </div>
+                    </div>
+                    
+                    <h3 data-lang="bs">Savjeti za održavanje i prevenciju bolesti</h3>
+                    <h3 data-lang="en" style="display: none;">Maintenance tips and disease prevention</h3>
+                    
+                    <div id="maintenance-tips">
+                        <p data-lang="bs">• Redovno uklanjajte uvenule cvjetove kako biste potaknuli novo cvjetanje.<br>
+                        • Prilikom zalijevanja izbjegavajte kvašenje lišća kako biste spriječili gljivične bolesti.<br>
+                        • U proljeće dodajte kompost ili organsko đubrivo.<br>
+                        • Redovno pregledavajte biljku na prisustvo štetočina kao što su lisne uši.<br>
+                        • Za bolju cirkulaciju zraka, osigurajte dovoljno prostora između biljaka.</p>
+                        <p data-lang="en" style="display: none;">• Regularly remove wilted flowers to encourage new blooms.<br>
+                        • When watering, avoid wetting the leaves to prevent fungal diseases.<br>
+                        • Add compost or organic fertilizer in spring.<br>
+                        • Regularly check the plant for pests such as aphids.<br>
+                        • For better air circulation, ensure enough space between plants.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendar Tab -->
+        <section id="calendar" class="tab-content">
+            <div class="card">
+                <h2 data-lang="bs">Kalendar sadnje</h2>
+                <p data-lang="bs" class="description">Interaktivni kalendar za planiranje sadnje biljaka po mjesecima. Dodajte vlastite bilješke za svaki dan.</p>
+                <p data-lang="en" class="description" style="display: none;">Interactive calendar for planning plant planting by months. Add your own notes for each day.</p>
+                
+                <div class="calendar-controls">
+                    <div class="month-nav">
+                        <button class="month-btn" id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                        <h3 id="current-month">Septembar 2023</h3>
+                        <button class="month-btn" id="next-month"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <button class="btn btn-primary" id="add-note">
+                        <i class="fas fa-plus"></i>
+                        <span data-lang="bs">Dodaj bilješku</span>
+                        <span data-lang="en" style="display: none;">Add note</span>
+                    </button>
+                </div>
+                
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Calendar will be generated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Export Tab -->
+        <section id="export" class="tab-content">
+            <div class="card">
+                <h2 data-lang="bs">Izvoz podataka</h2>
+                <p data-lang="bs" class="description">Preuzmite kalendar sadnje i bilješke u različitim formatima.</p>
+                <p data-lang="en" class="description" style="display: none;">Download planting calendar and notes in different formats.</p>
+                
+                <div class="export-options">
+                    <button class="export-btn" id="export-txt">
+                        <i class="fas fa-file-alt"></i>
+                        <span data-lang="bs">Preuzmi kao TXT</span>
+                        <span data-lang="en" style="display: none;">Download as TXT</span>
+                    </button>
+                    <button class="export-btn" id="export-pdf">
+                        <i class="fas fa-file-pdf"></i>
+                        <span data-lang="bs">Preuzmi kao PDF</span>
+                        <span data-lang="en" style="display: none;">Download as PDF</span>
+                    </button>
+                </div>
+                
+                <div id="export-content" style="margin-top: 2rem;">
+                    <h3 data-lang="bs">Pregled za izvoz</h3>
+                    <h3 data-lang="en" style="display: none;">Export preview</h3>
+                    <div id="export-preview" style="background-color: var(--light-gray); padding: 1.5rem; border-radius: 10px; white-space: pre-line;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notes Modal -->
+    <div class="modal" id="notes-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h3 id="modal-title" data-lang="bs">Dodaj bilješku za</h3>
+            <h3 id="modal-title-en" data-lang="en" style="display: none;">Add note for</h3>
+            <h4 id="selected-date">1. Septembar 2023</h4>
+            <textarea id="note-text" placeholder="Unesite bilješku..." data-lang-bs="Unesite bilješku..." data-lang-en="Enter note..."></textarea>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancel-note">
+                    <span data-lang="bs">Otkaži</span>
+                    <span data-lang="en" style="display: none;">Cancel</span>
+                </button>
+                <button class="btn btn-primary" id="save-note">
+                    <span data-lang="bs">Sačuvaj</span>
+                    <span data-lang="en" style="display: none;">Save</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p data-lang="bs">&copy; 2023 AI Biljke - Aplikacija za uzgoj biljaka. Sva prava zadržana.</p>
+            <p data-lang="en" style="display: none;">&copy; 2023 AI Plants - Plant growing application. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Language switching
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const lang = this.getAttribute('data-lang');
+                
+                // Update active language button
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide language-specific content
+                document.querySelectorAll('[data-lang]').forEach(element => {
+                    if (element.getAttribute('data-lang') === lang) {
+                        element.style.display = 'inline';
+                    } else {
+                        element.style.display = 'none';
+                    }
+                });
+                
+                // Update placeholders
+                document.querySelectorAll('[data-lang-bs], [data-lang-en]').forEach(element => {
+                    if (element.hasAttribute('placeholder')) {
+                        const placeholderBs = element.getAttribute('data-lang-bs');
+                        const placeholderEn = element.getAttribute('data-lang-en');
+                        element.placeholder = lang === 'bs' ? placeholderBs : placeholderEn;
+                    }
+                });
+                
+                // Update calendar month name
+                updateCalendarTitle();
+                
+                // Save language preference
+                localStorage.setItem('plantAppLanguage', lang);
+            });
+        });
+        
+        // Load saved language preference
+        const savedLang = localStorage.getItem('plantAppLanguage') || 'bs';
+        document.querySelector(`.lang-btn[data-lang="${savedLang}"]`).click();
+
+        // Tab switching
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show active tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+                
+                // If export tab is selected, update preview
+                if (tabId === 'export') {
+                    updateExportPreview();
+                }
+            });
+        });
+
+        // Plant identification method switching
+        document.querySelectorAll('.method-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const method = this.getAttribute('data-method');
+                
+                // Update active method button
+                document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide appropriate input method
+                if (method === 'camera') {
+                    document.getElementById('camera-container').style.display = 'flex';
+                    document.getElementById('text-input-container').style.display = 'none';
+                    
+                    // Show camera controls
+                    document.getElementById('start-camera').style.display = 'flex';
+                    document.getElementById('capture-photo').style.display = 'none';
+                    document.getElementById('stop-camera').style.display = 'none';
+                    
+                    // Hide text input result if any
+                    document.getElementById('plant-result').innerHTML = `
+                        <div class="plant-info" style="display: none;" id="plant-info"></div>
+                        <p id="no-plant" data-lang="bs">Još niste identifikovali biljku. Koristite kameru ili tekstualni unos da biste identifikovali biljku.</p>
+                        <p id="no-plant-en" data-lang="en" style="display: none;">You haven't identified a plant yet. Use the camera or text input to identify a plant.</p>
+                    `;
+                } else {
+                    document.getElementById('camera-container').style.display = 'none';
+                    document.getElementById('text-input-container').style.display = 'block';
+                    
+                    // Stop camera if running
+                    stopCamera();
+                }
+            });
+        });
+
+        // Camera functionality
+        let stream = null;
+        const camera = document.getElementById('camera');
+        const canvas = document.getElementById('camera-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        document.getElementById('start-camera').addEventListener('click', async function() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                camera.srcObject = stream;
+                camera.style.display = 'block';
+                canvas.style.display = 'none';
+                
+                // Update buttons
+                this.style.display = 'none';
+                document.getElementById('capture-photo').style.display = 'flex';
+                document.getElementById('stop-camera').style.display = 'flex';
+                
+                // Update camera container text
+                document.querySelector('#camera-container i').style.display = 'none';
+                document.querySelector('#camera-container p').style.display = 'none';
+            } catch (error) {
+                alert('Greška prilikom pokretanja kamere. Provjerite dozvolu za kameru.');
+                console.error('Camera error:', error);
+            }
+        });
+        
+        document.getElementById('stop-camera').addEventListener('click', stopCamera);
+        
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            camera.style.display = 'none';
+            canvas.style.display = 'none';
+            
+            // Update buttons
+            document.getElementById('start-camera').style.display = 'flex';
+            document.getElementById('capture-photo').style.display = 'none';
+            document.getElementById('stop-camera').style.display = 'none';
+            
+            // Restore camera container text
+            document.querySelector('#camera-container i').style.display = 'block';
+            document.querySelector('#camera-container p').style.display = 'block';
+        }
+        
+        document.getElementById('capture-photo').addEventListener('click', function() {
+            // Set canvas dimensions to match video
+            canvas.width = camera.videoWidth;
+            canvas.height = camera.videoHeight;
+            
+            // Draw current video frame to canvas
+            ctx.drawImage(camera, 0, 0, canvas.width, canvas.height);
+            
+            // Show canvas instead of video
+            camera.style.display = 'none';
+            canvas.style.display = 'block';
+            
+            // Simulate plant identification with AI (in real app, this would call an API)
+            setTimeout(() => {
+                identifyPlant('rose');
+            }, 1000);
+        });
+        
+        // Text-based plant identification
+        document.getElementById('identify-from-text').addEventListener('click', function() {
+            const plantName = document.getElementById('plant-name-input').value.trim();
+            if (plantName) {
+                // Simulate AI identification
+                identifyPlant(plantName.toLowerCase());
+            } else {
+                alert('Unesite naziv biljke.');
+            }
+        });
+        
+        // Plant identification function
+        function identifyPlant(plantName) {
+            // Plant database (simulated)
+            const plantDB = {
+                'ruža': {
+                    name: 'Ruža',
+                    nameEn: 'Rose',
+                    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    description: 'Ruža je cvijet iz porodice Rosaceae. Postoji preko 300 vrsta i hiljada sorti. Cvjeta u raznim bojama, najčešće u crvenoj, rozoj, bijeloj i žutoj.',
+                    descriptionEn: 'Rose is a flower from the Rosaceae family. There are over 300 species and thousands of cultivars. It blooms in various colors, most commonly in red, pink, white and yellow.',
+                    light: 'Potrebno puno sunca, najmanje 6 sati dnevno.',
+                    lightEn: 'Needs plenty of sunlight, at least 6 hours daily.',
+                    temperature: 'Optimalna temperatura je 15-25°C. Može podnijeti i niže temperature.',
+                    temperatureEn: 'Optimal temperature is 15-25°C. Can tolerate lower temperatures.',
+                    water: 'Zalijevati redovno, ali izbjegavati prekomjerno zalijevanje. Tlo treba biti vlažno, ali ne mokro.',
+                    waterEn: 'Water regularly, but avoid overwatering. Soil should be moist but not wet.',
+                    soil: 'Plodno, dobro drenirano tlo sa pH vrijednošću između 6.0 i 6.5.',
+                    soilEn: 'Fertile, well-drained soil with pH between 6.0 and 6.5.'
+                },
+                'ruza': {
+                    name: 'Ruža',
+                    nameEn: 'Rose',
+                    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    description: 'Ruža je cvijet iz porodice Rosaceae. Postoji preko 300 vrsta i hiljada sorti. Cvjeta u raznim bojama, najčešće u crvenoj, rozoj, bijeloj i žutoj.',
+                    descriptionEn: 'Rose is a flower from the Rosaceae family. There are over 300 species and thousands of cultivars. It blooms in various colors, most commonly in red, pink, white and yellow.',
+                    light: 'Potrebno puno sunca, najmanje 6 sati dnevno.',
+                    lightEn: 'Needs plenty of sunlight, at least 6 hours daily.',
+                    temperature: 'Optimalna temperatura je 15-25°C. Može podnijeti i niže temperature.',
+                    temperatureEn: 'Optimal temperature is 15-25°C. Can tolerate lower temperatures.',
+                    water: 'Zalijevati redovno, ali izbjegavati prekomjerno zalijevanje. Tlo treba biti vlažno, ali ne mokro.',
+                    waterEn: 'Water regularly, but avoid overwatering. Soil should be moist but not wet.',
+                    soil: 'Plodno, dobro drenirano tlo sa pH vrijednošću između 6.0 i 6.5.',
+                    soilEn: 'Fertile, well-drained soil with pH between 6.0 and 6.5.'
+                },
+                'rose': {
+                    name: 'Ruža',
+                    nameEn: 'Rose',
+                    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    description: 'Ruža je cvijet iz porodice Rosaceae. Postoji preko 300 vrsta i hiljada sorti. Cvjeta u raznim bojama, najčešće u crvenoj, rozoj, bijeloj i žutoj.',
+                    descriptionEn: 'Rose is a flower from the Rosaceae family. There are over 300 species and thousands of cultivars. It blooms in various colors, most commonly in red, pink, white and yellow.',
+                    light: 'Potrebno puno sunca, najmanje 6 sati dnevno.',
+                    lightEn: 'Needs plenty of sunlight, at least 6 hours daily.',
+                    temperature: 'Optimalna temperatura je 15-25°C. Može podnijeti i niže temperature.',
+                    temperatureEn: 'Optimal temperature is 15-25°C. Can tolerate lower temperatures.',
+                    water: 'Zalijevati redovno, ali izbjegavati prekomjerno zalijevanje. Tlo treba biti vlažno, ali ne mokro.',
+                    waterEn: 'Water regularly, but avoid overwatering. Soil should be moist but not wet.',
+                    soil: 'Plodno, dobro drenirano tlo sa pH vrijednošću između 6.0 i 6.5.',
+                    soilEn: 'Fertile, well-drained soil with pH between 6.0 and 6.5.'
+                },
+                'bosiljak': {
+                    name: 'Bosiljak',
+                    nameEn: 'Basil',
+                    image: 'https://images.unsplash.com/photo-1591522812569-42d9ba1c476c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    description: 'Bosiljak je aromatična biljka iz porodice Lamiaceae. Koristi se kao začin u kulinarstvu i ima ljekovita svojstva.',
+                    descriptionEn: 'Basil is an aromatic plant from the Lamiaceae family. It is used as a spice in cooking and has medicinal properties.',
+                    light: 'Potrebno puno sunca, barem 6-8 sati dnevno.',
+                    lightEn: 'Needs plenty of sunlight, at least 6-8 hours daily.',
+                    temperature: 'Voli toplinu, optimalna temperatura je 20-30°C. Ne podnosi hladnoću.',
+                    temperatureEn: 'Likes warmth, optimal temperature is 20-30°C. Does not tolerate cold.',
+                    water: 'Zalijevati redovno, ali ne prekomjerno. Tlo treba biti stalno blago vlažno.',
+                    waterEn: 'Water regularly but not excessively. Soil should be constantly slightly moist.',
+                    soil: 'Plodno, dobro drenirano tlo sa pH vrijednošću između 6.0 i 7.5.',
+                    soilEn: 'Fertile, well-drained soil with pH between 6.0 and 7.5.'
+                },
+                'basil': {
+                    name: 'Bosiljak',
+                    nameEn: 'Basil',
+                    image: 'https://images.unsplash.com/photo-1591522812569-42d9ba1c476c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    description: 'Bosiljak je aromatična biljka iz porodice Lamiaceae. Koristi se kao začin u kulinarstvu i ima ljekovita svojstva.',
+                    descriptionEn: 'Basil is an aromatic plant from the Lamiaceae family. It is used as a spice in cooking and has medicinal properties.',
+                    light: 'Potrebno puno sunca, barem 6-8 sati dnevno.',
+                    lightEn: 'Needs plenty of sunlight, at least 6-8 hours daily.',
+                    temperature: 'Voli toplinu, optimalna temperatura je 20-30°C. Ne podnosi hladnoću.',
+                    temperatureEn: 'Likes warmth, optimal temperature is 20-30°C. Does not tolerate cold.',
+                    water: 'Zalijevati redovno, ali ne prekomjerno. Tlo treba biti stalno blago vlažno.',
+                    waterEn: 'Water regularly but not excessively. Soil should be constantly slightly moist.',
+                    soil: 'Plodno, dobro drenirano tlo sa pH vrijednošću između 6.0 i 7.5.',
+                    soilEn: 'Fertile, well-drained soil with pH between 6.0 and 7.5.'
+                },
+                'paradajz': {
+                    name: 'Paradajz',
+                    nameEn: 'Tomato',
+                    image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    description: 'Paradajz je jestiva biljka iz porodice Solanaceae. Plodovi su crveni, sočni i koriste se u ishrani širom svijeta.',
+                    descriptionEn: 'Tomato is an edible plant from the Solanaceae family. The fruits are red, juicy and used in nutrition worldwide.',
+                    light: 'Potrebno puno sunca, najmanje 8 sati dnevno.',
+                    lightEn: 'Needs plenty of sunlight, at least 8 hours daily.',
+                    temperature: 'Voli toplinu, optimalna temperatura je 18-28°C. Ne podnosi mraz.',
+                    temperatureEn: 'Likes warmth, optimal temperature is 18-28°C. Does not tolerate frost.',
+                    water: 'Zalijevati redovno i obilno, posebno tokom formiranja plodova.',
+                    waterEn: 'Water regularly and abundantly, especially during fruit formation.',
+                    soil: 'Plodno, dobro drenirano tlo bogato organskom materijom.',
+                    soilEn: 'Fertile, well-drained soil rich in organic matter.'
+                },
+                'tomato': {
+                    name: 'Paradajz',
+                    nameEn: 'Tomato',
+                    image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    description: 'Paradajz je jestiva biljka iz porodice Solanaceae. Plodovi su crveni, sočni i koriste se u ishrani širom svijeta.',
+                    descriptionEn: 'Tomato is an edible plant from the Solanaceae family. The fruits are red, juicy and used in nutrition worldwide.',
+                    light: 'Potrebno puno sunca, najmanje 8 sati dnevno.',
+                    lightEn: 'Needs plenty of sunlight, at least 8 hours daily.',
+                    temperature: 'Voli toplinu, optimalna temperatura je 18-28°C. Ne podnosi mraz.',
+                    temperatureEn: 'Likes warmth, optimal temperature is 18-28°C. Does not tolerate frost.',
+                    water: 'Zalijevati redovno i obilno, posebno tokom formiranja plodova.',
+                    waterEn: 'Water regularly and abundantly, especially during fruit formation.',
+                    soil: 'Plodno, dobro drenirano tlo bogato organskom materijom.',
+                    soilEn: 'Fertile, well-drained soil rich in organic matter.'
+                }
+            };
+            
+            // Find plant in database or use default
+            let plant;
+            if (plantDB[plantName]) {
+                plant = plantDB[plantName];
+            } else {
+                // Default plant if not found
+                plant = plantDB['ruža'];
+            }
+            
+            // Update plant info in identification tab
+            const plantInfo = document.getElementById('plant-info');
+            document.getElementById('plant-image').src = plant.image;
+            document.getElementById('plant-title').textContent = plant.name;
+            
+            // Update descriptions based on current language
+            const isBosnian = document.querySelector('.lang-btn.active').getAttribute('data-lang') === 'bs';
+            const descriptionElement = document.querySelector('#plant-description span[data-lang="bs"]');
+            const descriptionEnElement = document.querySelector('#plant-description span[data-lang="en"]');
+            
+            if (isBosnian) {
+                descriptionElement.textContent = plant.description;
+                descriptionEnElement.textContent = plant.descriptionEn;
+            } else {
+                descriptionElement.textContent = plant.descriptionEn;
+                descriptionEnElement.textContent = plant.description;
+            }
+            
+            // Show plant info and hide "no plant" message
+            document.getElementById('no-plant').style.display = 'none';
+            document.getElementById('no-plant-en').style.display = 'none';
+            plantInfo.style.display = 'flex';
+            
+            // Update conditions tab with the same plant
+            updateConditionsTab(plant);
+            
+            // Add planting suggestion to calendar
+            addPlantingSuggestion(plant.name);
+            
+            // Save identified plant to localStorage
+            localStorage.setItem('lastIdentifiedPlant', JSON.stringify(plant));
+        }
+        
+        // Update conditions tab with plant data
+        function updateConditionsTab(plant) {
+            document.getElementById('conditions-plant-image').src = plant.image;
+            document.getElementById('conditions-plant-title').textContent = plant.name;
+            
+            // Update descriptions based on current language
+            const isBosnian = document.querySelector('.lang-btn.active').getAttribute('data-lang') === 'bs';
+            const descriptionElement = document.querySelector('#conditions-plant-description span[data-lang="bs"]');
+            const descriptionEnElement = document.querySelector('#conditions-plant-description span[data-lang="en"]');
+            
+            if (isBosnian) {
+                descriptionElement.textContent = plant.description;
+                descriptionEnElement.textContent = plant.descriptionEn;
+            } else {
+                descriptionElement.textContent = plant.descriptionEn;
+                descriptionEnElement.textContent = plant.description;
+            }
+            
+            // Update conditions
+            document.getElementById('light-condition').textContent = plant.light;
+            document.getElementById('light-condition-en').textContent = plant.lightEn;
+            document.getElementById('temp-condition').textContent = plant.temperature;
+            document.getElementById('temp-condition-en').textContent = plant.temperatureEn;
+            document.getElementById('water-condition').textContent = plant.water;
+            document.getElementById('water-condition-en').textContent = plant.waterEn;
+            document.getElementById('soil-condition').textContent = plant.soil;
+            document.getElementById('soil-condition-en').textContent = plant.soilEn;
+        }
+        
+        // Load last identified plant from localStorage
+        const lastPlant = localStorage.getItem('lastIdentifiedPlant');
+        if (lastPlant) {
+            const plant = JSON.parse(lastPlant);
+            updateConditionsTab(plant);
+            
+            // Also update identification tab
+            document.getElementById('plant-image').src = plant.image;
+            document.getElementById('plant-title').textContent = plant.name;
+            document.querySelector('#plant-description span[data-lang="bs"]').textContent = plant.description;
+            document.querySelector('#plant-description span[data-lang="en"]').textContent = plant.descriptionEn;
+            
+            document.getElementById('no-plant').style.display = 'none';
+            document.getElementById('no-plant-en').style.display = 'none';
+            document.getElementById('plant-info').style.display = 'flex';
+        }
+
+        // Calendar functionality
+        let currentDate = new Date();
+        let selectedDate = null;
+        let notes = JSON.parse(localStorage.getItem('plantCalendarNotes')) || {};
+        
+        // Initialize calendar
+        function initCalendar() {
+            renderCalendar(currentDate);
+            
+            // Event listeners for month navigation
+            document.getElementById('prev-month').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar(currentDate);
+            });
+            
+            document.getElementById('next-month').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar(currentDate);
+            });
+            
+            // Event listener for adding note button
+            document.getElementById('add-note').addEventListener('click', () => {
+                openNoteModal(new Date());
+            });
+        }
+        
+        // Render calendar for given month
+        function renderCalendar(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            
+            // Update calendar title
+            updateCalendarTitle();
+            
+            // Get first day of month and total days
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const totalDays = lastDay.getDate();
+            const startingDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            
+            // Day names
+            const dayNames = [
+                { bs: 'Ned', en: 'Sun' },
+                { bs: 'Pon', en: 'Mon' },
+                { bs: 'Uto', en: 'Tue' },
+                { bs: 'Sri', en: 'Wed' },
+                { bs: 'Čet', en: 'Thu' },
+                { bs: 'Pet', en: 'Fri' },
+                { bs: 'Sub', en: 'Sat' }
+            ];
+            
+            // Clear calendar grid
+            const calendarGrid = document.getElementById('calendar-grid');
+            calendarGrid.innerHTML = '';
+            
+            // Add day headers
+            const currentLang = document.querySelector('.lang-btn.active').getAttribute('data-lang');
+            dayNames.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day-header';
+                dayElement.textContent = currentLang === 'bs' ? day.bs : day.en;
+                calendarGrid.appendChild(dayElement);
+            });
+            
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < startingDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                calendarGrid.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            for (let day = 1; day <= totalDays; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                // Create day number
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayElement.appendChild(dayNumber);
+                
+                // Check if there are notes for this day
+                const dateKey = `${year}-${month + 1}-${day}`;
+                if (notes[dateKey]) {
+                    notes[dateKey].forEach(note => {
+                        const noteElement = document.createElement('div');
+                        noteElement.className = 'planting-item';
+                        noteElement.innerHTML = `<span class="planting-indicator" style="background-color: ${note.color || '#4caf50'}"></span>${note.text}`;
+                        noteElement.addEventListener('click', () => {
+                            openNoteModal(new Date(year, month, day), note);
+                        });
+                        dayElement.appendChild(noteElement);
+                    });
+                }
+                
+                // Add note button
+                const addNoteBtn = document.createElement('button');
+                addNoteBtn.className = 'add-note-btn';
+                addNoteBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                addNoteBtn.addEventListener('click', () => {
+                    openNoteModal(new Date(year, month, day));
+                });
+                dayElement.appendChild(addNoteBtn);
+                
+                // Add click event to select day
+                dayElement.addEventListener('click', (e) => {
+                    if (e.target !== addNoteBtn && !e.target.closest('.planting-item')) {
+                        openNoteModal(new Date(year, month, day));
+                    }
+                });
+                
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+        
+        // Update calendar title based on current language
+        function updateCalendarTitle() {
+            const monthNames = [
+                { bs: 'Januar', en: 'January' },
+                { bs: 'Februar', en: 'February' },
+                { bs: 'Mart', en: 'March' },
+                { bs: 'April', en: 'April' },
+                { bs: 'Maj', en: 'May' },
+                { bs: 'Juni', en: 'June' },
+                { bs: 'Juli', en: 'July' },
+                { bs: 'Avgust', en: 'August' },
+                { bs: 'Septembar', en: 'September' },
+                { bs: 'Oktobar', en: 'October' },
+                { bs: 'Novembar', en: 'November' },
+                { bs: 'Decembar', en: 'December' }
+            ];
+            
+            const currentLang = document.querySelector('.lang-btn.active').getAttribute('data-lang');
+            const monthName = monthNames[currentDate.getMonth()][currentLang];
+            document.getElementById('current-month').textContent = `${monthName} ${currentDate.getFullYear()}`;
+        }
+        
+        // Add planting suggestion to calendar
+        function addPlantingSuggestion(plantName) {
+            const today = new Date();
+            const dateKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+            
+            // Check if we already have a note for this plant today
+            if (notes[dateKey]) {
+                const existingNote = notes[dateKey].find(note => note.text.includes(plantName));
+                if (existingNote) return;
+            }
+            
+            // Create new note
+            const note = {
+                id: Date.now(),
+                text: `${plantName} identificiran/a`,
+                color: '#4caf50',
+                date: dateKey,
+                type: 'identification'
+            };
+            
+            // Add to notes
+            if (!notes[dateKey]) {
+                notes[dateKey] = [];
+            }
+            notes[dateKey].push(note);
+            
+            // Save to localStorage
+            localStorage.setItem('plantCalendarNotes', JSON.stringify(notes));
+            
+            // If calendar is currently displayed, re-render it
+            if (document.getElementById('calendar').classList.contains('active')) {
+                renderCalendar(currentDate);
+            }
+        }
+        
+        // Note modal functionality
+        const modal = document.getElementById('notes-modal');
+        const closeModal = document.getElementById('close-modal');
+        const cancelNote = document.getElementById('cancel-note');
+        const saveNote = document.getElementById('save-note');
+        const noteText = document.getElementById('note-text');
+        const selectedDateElement = document.getElementById('selected-date');
+        
+        let editingNote = null;
+        
+        // Open note modal
+        function openNoteModal(date, note = null) {
+            selectedDate = date;
+            editingNote = note;
+            
+            // Format date for display
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+            
+            // Update modal title based on language
+            const currentLang = document.querySelector('.lang-btn.active').getAttribute('data-lang');
+            const monthNames = [
+                { bs: 'Januar', en: 'January' },
+                { bs: 'Februar', en: 'February' },
+                { bs: 'Mart', en: 'March' },
+                { bs: 'April', en: 'April' },
+                { bs: 'Maj', en: 'May' },
+                { bs: 'Juni', en: 'June' },
+                { bs: 'Juli', en: 'July' },
+                { bs: 'Avgust', en: 'August' },
+                { bs: 'Septembar', en: 'September' },
+                { bs: 'Oktobar', en: 'October' },
+                { bs: 'Novembar', en: 'November' },
+                { bs: 'Decembar', en: 'December' }
+            ];
+            
+            const monthName = monthNames[date.getMonth()][currentLang];
+            selectedDateElement.textContent = `${day}. ${monthName} ${year}`;
+            
+            // Set note text if editing
+            if (note) {
+                noteText.value = note.text;
+            } else {
+                noteText.value = '';
+            }
+            
+            // Show modal
+            modal.style.display = 'flex';
+        }
+        
+        // Close modal
+        function closeNoteModal() {
+            modal.style.display = 'none';
+            noteText.value = '';
+            editingNote = null;
+        }
+        
+        // Save note
+        function saveNoteToCalendar() {
+            const text = noteText.value.trim();
+            if (!text) {
+                alert('Unesite tekst bilješke.');
+                return;
+            }
+            
+            const dateKey = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+            
+            if (editingNote) {
+                // Update existing note
+                const noteIndex = notes[dateKey].findIndex(note => note.id === editingNote.id);
+                if (noteIndex !== -1) {
+                    notes[dateKey][noteIndex].text = text;
+                }
+            } else {
+                // Create new note
+                const note = {
+                    id: Date.now(),
+                    text: text,
+                    color: '#2196f3',
+                    date: dateKey,
+                    type: 'user'
+                };
+                
+                if (!notes[dateKey]) {
+                    notes[dateKey] = [];
+                }
+                notes[dateKey].push(note);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('plantCalendarNotes', JSON.stringify(notes));
+            
+            // Re-render calendar
+            renderCalendar(currentDate);
+            
+            // Close modal
+            closeNoteModal();
+            
+            // Update export preview if export tab is active
+            if (document.getElementById('export').classList.contains('active')) {
+                updateExportPreview();
+            }
+        }
+        
+        // Event listeners for modal
+        closeModal.addEventListener('click', closeNoteModal);
+        cancelNote.addEventListener('click', closeNoteModal);
+        saveNote.addEventListener('click', saveNoteToCalendar);
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeNoteModal();
+            }
+        });
+
+        // Export functionality
+        document.getElementById('export-txt').addEventListener('click', exportToTxt);
+        document.getElementById('export-pdf').addEventListener('click', exportToPdf);
+        
+        // Update export preview
+        function updateExportPreview() {
+            const exportPreview = document.getElementById('export-preview');
+            const currentLang = document.querySelector('.lang-btn.active').getAttribute('data-lang');
+            
+            let previewText = '';
+            
+            if (currentLang === 'bs') {
+                previewText += 'KALENDAR SADNJE BILJAKA\n';
+                previewText += '========================\n\n';
+                previewText += `Datum izvještaja: ${new Date().toLocaleDateString('bs-BA')}\n\n`;
+                
+                // Add identified plant info
+                const lastPlant = localStorage.getItem('lastIdentifiedPlant');
+                if (lastPlant) {
+                    const plant = JSON.parse(lastPlant);
+                    previewText += `Posljednja identifikovana biljka: ${plant.name}\n`;
+                    previewText += `Opis: ${plant.description}\n\n`;
+                }
+                
+                // Add notes
+                previewText += 'BILJEŠKE:\n';
+                previewText += '---------\n';
+                
+                const noteDates = Object.keys(notes).sort();
+                if (noteDates.length === 0) {
+                    previewText += 'Nema bilješki.\n';
+                } else {
+                    noteDates.forEach(dateKey => {
+                        const [year, month, day] = dateKey.split('-');
+                        const date = new Date(year, month - 1, day);
+                        previewText += `${day}.${month}.${year}:\n`;
+                        
+                        notes[dateKey].forEach(note => {
+                            previewText += `  • ${note.text}\n`;
+                        });
+                    });
+                }
+            } else {
+                previewText += 'PLANTING CALENDAR\n';
+                previewText += '=================\n\n';
+                previewText += `Report date: ${new Date().toLocaleDateString('en-US')}\n\n`;
+                
+                // Add identified plant info
+                const lastPlant = localStorage.getItem('lastIdentifiedPlant');
+                if (lastPlant) {
+                    const plant = JSON.parse(lastPlant);
+                    previewText += `Last identified plant: ${plant.nameEn}\n`;
+                    previewText += `Description: ${plant.descriptionEn}\n\n`;
+                }
+                
+                // Add notes
+                previewText += 'NOTES:\n';
+                previewText += '------\n';
+                
+                const noteDates = Object.keys(notes).sort();
+                if (noteDates.length === 0) {
+                    previewText += 'No notes.\n';
+                } else {
+                    noteDates.forEach(dateKey => {
+                        const [year, month, day] = dateKey.split('-');
+                        const date = new Date(year, month - 1, day);
+                        previewText += `${month}/${day}/${year}:\n`;
+                        
+                        notes[dateKey].forEach(note => {
+                            previewText += `  • ${note.text}\n`;
+                        });
+                    });
+                }
+            }
+            
+            exportPreview.textContent = previewText;
+        }
+        
+        // Export to TXT
+        function exportToTxt() {
+            const exportPreview = document.getElementById('export-preview');
+            const text = exportPreview.textContent;
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `kalendar_sadnje_${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Export to PDF
+        function exportToPdf() {
+            const exportPreview = document.getElementById('export-preview');
+            const currentLang = document.querySelector('.lang-btn.active').getAttribute('data-lang');
+            
+            const title = currentLang === 'bs' ? 'Kalendar sadnje biljaka' : 'Planting Calendar';
+            const dateStr = new Date().toLocaleDateString(currentLang === 'bs' ? 'bs-BA' : 'en-US');
+            
+            const element = document.createElement('div');
+            element.innerHTML = `
+                <h1 style="color: #2e7d32; text-align: center; margin-bottom: 20px;">${title}</h1>
+                <p style="text-align: center; margin-bottom: 30px;">${dateStr}</p>
+                <div style="white-space: pre-line; font-family: Arial, sans-serif; line-height: 1.5;">
+                    ${exportPreview.textContent}
+                </div>
+                <p style="margin-top: 40px; font-size: 12px; color: #666; text-align: center;">
+                    ${currentLang === 'bs' ? 'Izvezeno iz AI Biljke aplikacije' : 'Exported from AI Plants application'}
+                </p>
+            `;
+            
+            const opt = {
+                margin: 10,
+                filename: `kalendar_sadnje_${new Date().toISOString().slice(0, 10)}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initCalendar();
+            updateExportPreview();
+            
+            // Load last identified plant
+            const lastPlant = localStorage.getItem('lastIdentifiedPlant');
+            if (lastPlant) {
+                const plant = JSON.parse(lastPlant);
+                identifyPlant(plant.name.toLowerCase());
+            }
+        });
+    </script>
+</body>
+</html>
